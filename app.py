@@ -12,7 +12,8 @@ from auth import User, get_user_by_username, load_user
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = 'your_secret_key'
-
+# Example Flask-Login configuration
+app.config['LOGIN_URL'] = '/gsc/login'
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.user_loader(load_user)
@@ -40,7 +41,7 @@ def create_results_table():
 create_results_table()
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/gsc/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -59,7 +60,7 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/logout')
+@app.route('/gsc/logout')
 @login_required
 def logout():
     logout_user()
