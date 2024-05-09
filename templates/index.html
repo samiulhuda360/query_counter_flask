@@ -89,89 +89,89 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            var form = $('form');
-            var table = $('table tbody');
-            var downloadButton = $('#download-button');
-            var submitButton = $('.submit-button');
-            var popup = $('.popup');
-            var taskIds = [];
+          var form = $('form');
+          var table = $('table tbody');
+          var downloadButton = $('#download-button');
+          var submitButton = $('.submit-button');
+          var popup = $('.popup');
+          var taskIds = [];
+          var slNo = 1; // Initialize the serial number counter
         
-            form.on('submit', function(event) {
-                event.preventDefault();
-                var formData = new FormData(this);
-                submitButton.prop('disabled', true); // Disable the submit button
-        
-                $.ajax({
-                    url: '/upload',
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        console.log('File uploaded successfully');
-                        table.empty(); // Clear the table when a new file is uploaded
-                        taskIds = response.task_ids; // Store the task IDs
-                        pollResults();
-                    },
-                    error: function(error) {
-                        console.error('Error:', error);
-                        submitButton.prop('disabled', false); // Enable the submit button if an error occurs
-                    }
-                });
+          form.on('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            submitButton.prop('disabled', true); // Disable the submit button
+            $.ajax({
+              url: '/upload',
+              method: 'POST',
+              data: formData,
+              processData: false,
+              contentType: false,
+              success: function(response) {
+                console.log('File uploaded successfully');
+                table.empty(); // Clear the table when a new file is uploaded
+                taskIds = response.task_ids; // Store the task IDs
+                slNo = 1; // Reset the serial number counter
+                pollResults();
+              },
+              error: function(error) {
+                console.error('Error:', error);
+                submitButton.prop('disabled', false); // Enable the submit button if an error occurs
+              }
             });
+          });
         
-            function pollResults() {
-                $.getJSON('/results', function(results) {
-                    table.empty(); // Clear the table before updating with new results
-            
-                    // Update the table with new results
-                    $.each(results, function(index, result) {
-                        var row = $('<tr>');
-                        row.append($('<td>').text(result.url));
-                        row.append($('<td>').text(result.keyword));
-                        row.append($('<td>').text(result.h1_count));
-                        row.append($('<td>').text(result.h2_count));
-                        row.append($('<td>').text(result.body_count));
-                        table.append(row);
-                    });
-            
-                    // Check if all tasks are completed
-                    $.ajax({
-                        url: '/tasks_status',
-                        method: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({ task_ids: taskIds }),
-                        success: function(statusResponse) {
-                            if (statusResponse.all_tasks_completed) {
-                                // If all tasks are completed, show the pop-up and download button
-                                popup.removeClass('hidden');
-                                downloadButton.removeClass('hidden');
-                                submitButton.prop('disabled', false);
-                            } else {
-                                // If tasks are still running, continue polling
-                                setTimeout(pollResults, 1000);
-                            }
-                        },
-                        error: function(error) {
-                            console.error('Error:', error);
-                            submitButton.prop('disabled', false);
-                        }
-                    });
-                }).fail(function(error) {
-                    console.error('Error:', error);
-                    submitButton.prop('disabled', false); // Enable the submit button if an error occurs
-                });
-            }
+          function pollResults() {
+            $.getJSON('/results', function(results) {
+              table.empty(); // Clear the table before updating with new results
+              // Update the table with new results
+              $.each(results, function(index, result) {
+                var row = $('<tr>');
+                row.append($('<td>').text(slNo++)); // Add the serial number column
+                row.append($('<td>').text(result.url));
+                row.append($('<td>').text(result.keyword));
+                row.append($('<td>').text(result.h1_count));
+                row.append($('<td>').text(result.h2_count));
+                row.append($('<td>').text(result.body_count));
+                table.append(row);
+              });
+              // Check if all tasks are completed
+              $.ajax({
+                url: '/tasks_status',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ task_ids: taskIds }),
+                success: function(statusResponse) {
+                  if (statusResponse.all_tasks_completed) {
+                    // If all tasks are completed, show the pop-up and download button
+                    popup.removeClass('hidden');
+                    downloadButton.removeClass('hidden');
+                    submitButton.prop('disabled', false);
+                  } else {
+                    // If tasks are still running, continue polling
+                    setTimeout(pollResults, 1000);
+                  }
+                },
+                error: function(error) {
+                  console.error('Error:', error);
+                  submitButton.prop('disabled', false);
+                }
+              });
+            }).fail(function(error) {
+              console.error('Error:', error);
+              submitButton.prop('disabled', false); // Enable the submit button if an error occurs
+            });
+          }
         
-            downloadButton.on('click', function() {
-                window.location.href = '/download';
-            });
-
-            popup.find('.close').on('click', function() {
-                popup.addClass('hidden');
-            });
+          downloadButton.on('click', function() {
+            window.location.href = '/download';
+          });
+        
+          popup.find('.close').on('click', function() {
+            popup.addClass('hidden');
+          });
         });
-    </script>
+        </script>
 </head>
 <body>
     <div class="container">
