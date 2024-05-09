@@ -65,7 +65,7 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/')
+@app.route('/gsc/')
 def index():
     if current_user.is_authenticated:
         return render_template('index.html')
