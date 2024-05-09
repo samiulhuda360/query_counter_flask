@@ -70,7 +70,7 @@ def index():
     if current_user.is_authenticated:
         return render_template('index.html')
     else:
-        return redirect('/gsc/')
+        return redirect('/gsc/login')
 
 
 @login_required
