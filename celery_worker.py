@@ -17,7 +17,7 @@ def get_db_connection():
     conn = sqlite3.connect('scraping_results.db')
     return conn
 
-@app.task(bind=True, max_retries=3, default_retry_delay=5)
+@app.task(bind=True, max_retries=1, default_retry_delay=5)
 def scrape_website(self, url, keyword):
     try:
         # Set up a retry mechanism
