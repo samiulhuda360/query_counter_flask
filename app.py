@@ -40,7 +40,7 @@ def create_results_table():
 create_results_table()
 
 
-@app.route('/gsc/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -65,7 +65,7 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/gsc/')
+@app.route('/')
 def index():
     if current_user.is_authenticated:
         return render_template('index.html')
