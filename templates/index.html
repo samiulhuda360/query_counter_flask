@@ -66,6 +66,25 @@
         .popup.hidden {
             display: none;
         }
+        .logout-container {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .logout-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #dc3545;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #c82333;
+        }
+
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -157,6 +176,9 @@
 <body>
     <div class="container">
         <h1>Query Counter</h1>
+        <div class="logout-container">
+            <a href="/logout" class="logout-button">Logout</a>
+        </div>
         <form>
             <input type="file" name="file" class="file-input">
             <button type="submit" class="submit-button">Upload and Scrape</button>
