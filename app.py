@@ -53,7 +53,7 @@ def login():
         if user and user.password == password:
             user_obj = User(user.id, user.username, user.password)
             login_user(user_obj)
-            return redirect(url_for('index'))
+            return redirect(url_for('index', _external=True, _scheme='https'))
         else:
             flash('Invalid username or password', 'error')
     return render_template('login.html')
@@ -63,14 +63,18 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('login', _external=True, _scheme='https'))
+
 
 @app.route('/')
 def index():
     if current_user.is_authenticated:
         return render_template('index.html')
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('login', _external=True, _scheme='https'))
+    
+    
+
 
 @login_required
 @app.route('/upload', methods=['POST'])
