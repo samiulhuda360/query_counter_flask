@@ -154,9 +154,20 @@
                     setTimeout(pollResults, 1000);
                   }
                 },
-                error: function(error) {
-                  console.error('Error:', error);
-                  submitButton.prop('disabled', false);
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:');
+                    console.error('Status:', status);
+                    console.error('Error:', error);
+                    console.error('Response Text:', xhr.responseText);
+                    
+                    // Log the error details to the server (optional)
+                    $.post('/log-error', {
+                      status: status,
+                      error: error,
+                      responseText: xhr.responseText
+                    });
+                    
+                    submitButton.prop('disabled', false);
                 }
               });
             }).fail(function(error) {
