@@ -26,14 +26,31 @@ def get_db_connection():
 def create_results_table():
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS results
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 sl_no INTEGER,
-                 url TEXT,
-                 keyword TEXT,
-                 h1_count INTEGER,
-                 h2_count INTEGER,
-                 body_count INTEGER)''')
+    
+    # Check if the results table exists
+    c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='results'")
+    table_exists = c.fetchone()
+    
+    if table_exists:
+        # Check if the sl_no column exists
+        c.execute("PRAGMA table_info(results)")
+        columns = c.fetchall()
+        sl_no_exists = any(column[1] == 'sl_no' for column in columns)
+        
+        if not sl_no_exists:
+            # Add the sl_no column to the existing table
+            c.execute("ALTER TABLE results ADD COLUMN sl_no INTEGER")
+    else:
+        # Create the results table with the sl_no column
+        c.execute('''CREATE TABLE results
+                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                     sl_no INTEGER,
+                     url TEXT,
+                     keyword TEXT,
+                     h1_count INTEGER,
+                     h2_count INTEGER,
+                     body_count INTEGER)''')
+    
     conn.commit()
     conn.close()
 
