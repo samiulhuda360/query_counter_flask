@@ -39,6 +39,7 @@ def create_results_table():
 
 create_results_table()
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -52,7 +53,7 @@ def login():
         if user and user.password == password:
             user_obj = User(user.id, user.username, user.password)
             login_user(user_obj)
-            return redirect('/gsc')
+            return redirect(url_for('index'))
         else:
             flash('Invalid username or password', 'error')
     return render_template('login.html')
@@ -62,23 +63,17 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect('/gsc/login')
-
+    return redirect(url_for('login'))
 
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return redirect('/gsc')
+        return render_template('index.html')
     else:
-        return redirect('/gsc/login')
-
-
-@app.route('/gsc')
-@login_required
-def gsc_index():
-    return render_template('index.html')
+        return redirect(url_for('login'))
     
     
+
 
 @login_required
 @app.route('/upload', methods=['POST'])
