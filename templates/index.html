@@ -124,11 +124,10 @@
           function pollResults() {
             $.getJSON('/results', function(results) {
               table.empty(); // Clear the table before updating with new results
-              var startIndex = (slNo - 1) * results.length + 1; // Calculate the starting index for the serial number
               // Update the table with new results
               $.each(results, function(index, result) {
                 var row = $('<tr>');
-                row.append($('<td>').text(startIndex + index)); // Add the serial number column
+                row.append($('<td>').text(result.sl_no)); // Use the sl_no from the server response
                 row.append($('<td>').text(result.url));
                 row.append($('<td>').text(result.keyword));
                 row.append($('<td>').text(result.h1_count));
@@ -136,7 +135,6 @@
                 row.append($('<td>').text(result.body_count));
                 table.append(row);
               });
-              slNo++; // Increment the serial number after adding rows
               // Check if all tasks are completed
               $.ajax({
                 url: '/tasks_status',
@@ -155,19 +153,17 @@
                   }
                 },
                 error: function(xhr, status, error) {
-                    console.error('AJAX Error:');
-                    console.error('Status:', status);
-                    console.error('Error:', error);
-                    console.error('Response Text:', xhr.responseText);
-                    
-                    // Log the error details to the server (optional)
-                    $.post('/log-error', {
-                      status: status,
-                      error: error,
-                      responseText: xhr.responseText
-                    });
-                    
-                    submitButton.prop('disabled', false);
+                  console.error('AJAX Error:');
+                  console.error('Status:', status);
+                  console.error('Error:', error);
+                  console.error('Response Text:', xhr.responseText);
+                  // Log the error details to the server (optional)
+                  $.post('/log-error', {
+                    status: status,
+                    error: error,
+                    responseText: xhr.responseText
+                  });
+                  submitButton.prop('disabled', false);
                 }
               });
             }).fail(function(error) {

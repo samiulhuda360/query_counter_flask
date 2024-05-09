@@ -23,12 +23,12 @@ def get_db_connection():
     conn = sqlite3.connect('scraping_results.db')
     return conn
 
-# Create the results table if it doesn't exist
 def create_results_table():
     conn = get_db_connection()
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS results
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 sl_no INTEGER,
                  url TEXT,
                  keyword TEXT,
                  h1_count INTEGER,
@@ -94,10 +94,11 @@ def upload_file():
 
     # Insert the scraping tasks into the database
     task_ids = []
-    for _, row in df.iterrows():
+    for index, row in df.iterrows():
         url = row['URL']
         keyword = row['Keyword']
-        result = scrape_website.delay(url, keyword)
+        sl_no = index + 1  # Assign the serial number starting from 1
+        result = scrape_website.delay(url, keyword, sl_no)
         task_ids.append(result.id)
 
     return jsonify({"message": "File uploaded and processing started", "task_ids": task_ids})
@@ -123,7 +124,7 @@ def get_results():
     # Retrieve the scraping results from the database
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute('SELECT url, keyword, h1_count, h2_count, body_count FROM results')
+    c.execute('SELECT sl_no, url, keyword, h1_count, h2_count, body_count FROM results')
     results = c.fetchall()
     conn.close()
 
@@ -131,16 +132,16 @@ def get_results():
     formatted_results = []
     for result in results:
         formatted_result = {
-            'url': result[0],
-            'keyword': result[1],
-            'h1_count': result[2],
-            'h2_count': result[3],
-            'body_count': result[4]
+            'sl_no': result[0],
+            'url': result[1],
+            'keyword': result[2],
+            'h1_count': result[3],
+            'h2_count': result[4],
+            'body_count': result[5]
         }
         formatted_results.append(formatted_result)
 
     return jsonify(formatted_results)
-
 
 @login_required
 @app.route('/download')
@@ -149,12 +150,12 @@ def download_results():
         # Retrieve the scraping results from the database
         conn = sqlite3.connect('scraping_results.db')
         c = conn.cursor()
-        c.execute('SELECT url, keyword, h1_count, h2_count, body_count FROM results')
+        c.execute('SELECT sl_no, url, keyword, h1_count, h2_count, body_count FROM results')
         results = c.fetchall()
         conn.close()
 
         # Create a pandas DataFrame with the results
-        df = pd.DataFrame(results, columns=['URL', 'Keyword', 'H1 Count', 'H2 Count', 'Body Count'])
+        df = pd.DataFrame(results, columns=['Sl No', 'URL', 'Keyword', 'H1 Count', 'H2 Count', 'Body Count'])
 
         # Create an Excel file in memory
         excel_data = io.BytesIO()

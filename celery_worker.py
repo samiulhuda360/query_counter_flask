@@ -22,7 +22,7 @@ def scrape_website(self, url, keyword):
     try:
         # Set up a retry mechanism
         retry_strategy = Retry(
-            total=3,
+            total=1,
             backoff_factor=1,
             status_forcelist=[500, 502, 503, 504],
             raise_on_status=True
