@@ -2,9 +2,7 @@ version: '3'
 services:
   redis:
     image: redis
-    command: redis-server --bind 127.0.0.1
-    ports:
-      - "6379:6379"
+    command: redis-server --maxmemory 150mb --maxmemory-policy allkeys-lru
 
   reset:
     build: .
