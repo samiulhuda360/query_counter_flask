@@ -5,6 +5,14 @@ services:
     ports:
       - "6379:6379"
 
+  reset:
+    build: .
+    command: python reset_tasks.py
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
   web:
     build: .
     command: flask run --host=0.0.0.0
@@ -12,6 +20,7 @@ services:
       - "5000:5000"
     depends_on:
       - redis
+      - reset
     volumes:
       - .:/app
 
@@ -20,5 +29,6 @@ services:
     command: celery -A celery_worker worker --loglevel=info --concurrency=8
     depends_on:
       - redis
+      - reset
     volumes:
       - .:/app

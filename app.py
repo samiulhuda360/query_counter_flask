@@ -1,19 +1,22 @@
-import os
-import asyncio
-import json
+
 import pandas as pd
-import tempfile
-import uuid
 from flask import Flask, render_template, request, jsonify, send_file
 from celery_worker import scrape_website
 import sqlite3
 from flask import make_response
 import io
-import logging
-
-
+from flask import Flask
+from flask import Flask, render_template, redirect, url_for, request, flash
+from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from auth import User, get_user_by_username, load_user
 
 app = Flask(__name__, template_folder='templates')
+app.secret_key = 'your_secret_key'
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.user_loader(load_user)
+
 
 # Database connection setup
 def get_db_connection():
@@ -36,10 +39,40 @@ def create_results_table():
 
 create_results_table()
 
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = get_user_by_username(username)
+        if user:
+            print(f"User data: {user.id}, {user.username}, {user.password}")
+        else:
+            print("User not found")
+        if user and user.password == password:
+            user_obj = User(user.id, user.username, user.password)
+            login_user(user_obj)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid username or password', 'error')
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if current_user.is_authenticated:
+        return render_template('index.html')
+    else:
+        return redirect(url_for('login'))
 
+@login_required
 @app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
@@ -67,6 +100,7 @@ def upload_file():
 
     return jsonify({"message": "File uploaded and processing started", "task_ids": task_ids})
 
+
 @app.route('/tasks_status', methods=['POST'])
 def get_tasks_status():
     task_ids = request.json['task_ids']
@@ -80,6 +114,8 @@ def get_tasks_status():
     
     return jsonify({"all_tasks_completed": all_tasks_completed})
 
+
+@login_required
 @app.route('/results')
 def get_results():
     # Retrieve the scraping results from the database
@@ -103,6 +139,8 @@ def get_results():
 
     return jsonify(formatted_results)
 
+
+@login_required
 @app.route('/download')
 def download_results():
     try:
@@ -135,4 +173,5 @@ def download_results():
         print(e)
         return "An error occurred while generating the Excel file.", 500
     
-app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
