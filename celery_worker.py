@@ -65,7 +65,7 @@ def scrape_website(self, sl_no, url, keyword):
         conn = get_db_connection()
         c = conn.cursor()
         c.execute('INSERT INTO results (sl_no, url, keyword, h1_count, h2_count, body_count) VALUES (?, ?, ?, ?, ?, ?)',
-                  (sl_no, url, keyword, "?", "?", "?"))
+              (sl_no, url, keyword, str(h1_count), str(h2_count), str(body_count)))
         conn.commit()
         conn.close()
 

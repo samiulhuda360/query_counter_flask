@@ -118,8 +118,6 @@ def upload_file():
         result = scrape_website.delay(sl_no, url, keyword)
         task_ids.append(result.id)
 
-    return jsonify({"message": "File uploaded and processing started", "task_ids": task_ids})
-
 
 @app.route('/tasks_status', methods=['POST'])
 def get_tasks_status():
