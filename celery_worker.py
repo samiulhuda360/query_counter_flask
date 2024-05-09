@@ -41,4 +41,4 @@ def scrape_website(self, sl_no, url, keyword):
     except Exception as e:
         print(f"Error occurred while scraping the website: {e}")
         # Skip the task and continue with the next one
-        return None
+        return sl_no, '?', '?', '?'
