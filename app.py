@@ -52,7 +52,7 @@ def login():
         if user and user.password == password:
             user_obj = User(user.id, user.username, user.password)
             login_user(user_obj)
-            return redirect('/gsc/')
+            return redirect('/gsc')
         else:
             flash('Invalid username or password', 'error')
     return render_template('login.html')
@@ -68,9 +68,15 @@ def logout():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return render_template('index.html')
+        return redirect('/gsc')
     else:
         return redirect('/gsc/login')
+
+
+@app.route('/gsc')
+@login_required
+def gsc_index():
+    return render_template('index.html')
     
     
 
