@@ -2,7 +2,7 @@ version: '3'
 services:
   redis:
     image: redis
-    command: redis-server --maxmemory 150mb --maxmemory-policy allkeys-lru
+    command: redis-server --maxmemory 100mb --maxmemory-policy allkeys-lru
 
   reset:
     build: .
@@ -25,7 +25,7 @@ services:
 
   worker:
     build: .
-    command: celery -A celery_worker worker --loglevel=info --concurrency=8
+    command: celery -A celery_worker worker --loglevel=info --concurrency=4
     depends_on:
       - redis
       - reset
