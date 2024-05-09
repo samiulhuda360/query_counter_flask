@@ -53,7 +53,7 @@ def login():
         if user and user.password == password:
             user_obj = User(user.id, user.username, user.password)
             login_user(user_obj)
-            return redirect('index')
+            return redirect(url_for('index'))
         else:
             flash('Invalid username or password', 'error')
     return render_template('login.html')
@@ -70,8 +70,7 @@ def index():
     if current_user.is_authenticated:
         return render_template('index.html')
     else:
-        return redirect('login')
-
+        return redirect(url_for('login'))
 
 @login_required
 @app.route('/upload', methods=['POST'])
